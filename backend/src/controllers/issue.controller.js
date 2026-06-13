@@ -1,4 +1,4 @@
-const {createIssue,getAllIssues,getMyIssues,updateIssueStatus,getNearbyIssues,getFilteredIssues}=require('../services/issue.service')
+const {createIssue,getAllIssues,getMyIssues,updateIssueStatus,getNearbyIssues,getFilteredIssues,getIssueStats}=require('../services/issue.service')
 
 const create_issue_controller=async(req,res)=>{
   try{

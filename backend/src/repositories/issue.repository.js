@@ -6,7 +6,16 @@ const create_issue=async(data)=>{
 
 const get_all_issues=async()=>{
   return await prisma.issue.findMany({
-    include:{user:true},
+    include:{
+      user:{
+        select:{
+          id:true,
+          email:true,
+          role:true,
+          createdAt:true
+        }
+      }
+    },
     orderBy:{createdAt:'desc'}
   })
 }
