@@ -45,7 +45,9 @@ const MainLayout=()=>{
                 <Link to='/report' className={nav_link_class('/report')}>
                   Report Issue
                 </Link>
-
+                <Link to='/explore' className={nav_link_class('/explore')}>
+                  Explore
+                </Link>
                 <Link to='/my-issues' className={nav_link_class('/my-issues')}>
                   My Issues
                 </Link>

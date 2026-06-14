@@ -10,6 +10,7 @@ import AdminDashboard from '../pages/admin_dashboard'
 import NotFound from '../pages/not_found'
 import MainLayout from '../layouts/main_layout'
 import use_auth_store from '../store/auth_store'
+import Explore from '../pages/explore'
 
 const ProtectedRoute=({children})=>{
   const user=use_auth_store((state)=>state.user)
@@ -70,6 +71,14 @@ const AppRoutes=()=>{
             element={
               <ProtectedRoute>
                 <MyIssues/>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path='explore'
+            element={
+              <ProtectedRoute>
+                <Explore/>
               </ProtectedRoute>
             }
           />
