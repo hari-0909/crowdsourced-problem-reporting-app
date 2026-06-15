@@ -17,8 +17,8 @@ const ProtectedRoute=({children})=>{
   const auth_initialized=use_auth_store((state)=>state.auth_initialized)
 
   if(!auth_initialized){
-    return(
-      <div className='flex min-h-screen items-center justify-center bg-gray-950 text-white'>
+        return(
+          <div className='flex min-h-screen items-center justify-center' style={{background:'var(--page-bg)', color:'var(--text-primary)'}}>
         Loading...
       </div>
     )
@@ -32,8 +32,8 @@ const AdminRoute=({children})=>{
   const auth_initialized=use_auth_store((state)=>state.auth_initialized)
 
   if(!auth_initialized){
-    return(
-      <div className='flex min-h-screen items-center justify-center bg-gray-950 text-white'>
+        return(
+          <div className='flex min-h-screen items-center justify-center' style={{background:'var(--page-bg)', color:'var(--text-primary)'}}>
         Loading...
       </div>
     )

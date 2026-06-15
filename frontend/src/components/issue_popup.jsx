@@ -1,6 +1,6 @@
-const IssuePopup=({issue})=>{
-  return(
-    <div className='min-w-[220px]'>
+const IssuePopup = ({issue}) => {
+  return (
+    <div className='min-w-[220px] bg-white p-3 rounded'>
       <h3 className='mb-2 text-lg font-bold text-black'>
         {issue.title}
       </h3>
@@ -10,11 +10,12 @@ const IssuePopup=({issue})=>{
       </p>
 
       <div className='space-y-1 text-sm text-gray-800'>
-        <p><strong>Type:</strong> {issue.type}</p>
-        <p><strong>Status:</strong> {issue.status}</p>
+        <p><strong>Type:</strong> {issue.type || 'Unknown'}</p>
+        <p><strong>Status:</strong> {issue.status || 'Unknown'}</p>
+        <p><strong>Reporter:</strong> {issue.user?.email || 'Unknown'}</p>
       </div>
 
-      {issue.imageUrl&&(
+      {issue.imageUrl && (
         <img
           src={issue.imageUrl}
           alt='Issue'

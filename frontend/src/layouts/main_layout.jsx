@@ -16,13 +16,13 @@ const MainLayout=()=>{
 
   const nav_link_class=(path)=>{
     return location.pathname===path
-      ?'text-blue-400 font-semibold'
-      :'text-gray-300 hover:text-white transition'
+      ?'text-blue-600 font-semibold'
+      :'text-gray-600 hover:text-gray-800 transition'
   }
 
   return(
-    <div className='min-h-screen bg-gray-950 text-white'>
-      <nav className='sticky top-0 z-50 border-b border-gray-800 bg-gray-950/95 backdrop-blur'>
+    <div className='min-h-screen' style={{background:'var(--page-bg)', color:'var(--text-primary)'}}>
+      <nav className='sticky top-0 z-50' style={{background:'var(--card-bg)', borderBottom:'1px solid var(--border)'}}>
         <div className='mx-auto flex max-w-7xl items-center justify-between px-6 py-4'>
           <Link
             to='/'
