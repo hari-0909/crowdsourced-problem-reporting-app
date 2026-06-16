@@ -25,7 +25,7 @@ const IssueDrawer=({ issue, on_close, format_date })=>{
 
           {issue.imageUrl && (
             <div className='mb-4 w-full h-60 sm:h-96 overflow-hidden rounded-lg bg-gray-800'>
-              <img src={issue.imageUrl} alt='Issue' className='w-full h-full object-cover' />
+                <img src={optimizeCloudinary(issue.imageUrl,{width:1200})} alt='Issue' className='w-full h-full object-cover' />
             </div>
           )}
 

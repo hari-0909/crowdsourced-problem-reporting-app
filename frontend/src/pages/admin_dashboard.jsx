@@ -1,6 +1,7 @@
-import {useEffect,useMemo,useState} from 'react'
+import {useEffect,useMemo,useState,useCallback} from 'react'
 import api from '../api/axios'
 import toast from 'react-hot-toast'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import AnalyticsCharts from '../components/analytics_charts'
 import IssueDrawer from '../components/issue_drawer'
 import {saveAs} from 'file-saver'
@@ -36,9 +37,28 @@ const AdminDashboard=()=>{
   const [current_page,set_current_page]=useState(1)
   const items_per_page=10
   const [selected_ids,set_selected_ids]=useState([])
+  const queryClient = useQueryClient()
+
+  const fetchStats = async ()=>{
+    const res = await api.get('/admin/stats')
+    return res.data.data
+  }
+
+  const fetchIssues = async ()=>{
+    const res = await api.get('/issues')
+    return res.data.data
+  }
+
+  const { data: statsData, isLoading: statsLoading, isError: statsError } = useQuery(['admin','stats'], fetchStats, { staleTime: 60000, retry:1 })
+  const { data: issuesData, isLoading: issuesLoading, isError: issuesError } = useQuery(['issues','all'], fetchIssues, { staleTime: 60000, retry:1 })
+
   useEffect(()=>{
-    fetch_admin_data()
-  },[])
+    // populate local state when queries resolve
+    if(statsData) set_stats(statsData)
+    if(issuesData) set_issues(issuesData)
+    if(statsLoading || issuesLoading) set_loading(true)
+    else set_loading(false)
+  },[statsData,issuesData,statsLoading,issuesLoading])
 
   const status_options=['ALL','REPORTED','IN_PROGRESS','RESOLVED']
 
@@ -148,10 +168,9 @@ const AdminDashboard=()=>{
   const update_status=async(issue_id,status)=>{
     try{
       await api.patch(`/issues/${issue_id}/status`,{status})
-
       toast.success('Issue status updated')
-
-      fetch_admin_data()
+      queryClient.invalidateQueries(['issues','all'])
+      queryClient.invalidateQueries(['admin','stats'])
     }catch(err){
       toast.error('Failed to update status')
     }
@@ -167,7 +186,8 @@ const AdminDashboard=()=>{
       await Promise.all(ids.map(id=>api.patch(`/issues/${id}/status`,{status})))
       toast.success('Bulk update successful')
       set_selected_ids([])
-      fetch_admin_data()
+      queryClient.invalidateQueries(['issues','all'])
+      queryClient.invalidateQueries(['admin','stats'])
     }catch(err){
       toast.error('Bulk update failed')
     }

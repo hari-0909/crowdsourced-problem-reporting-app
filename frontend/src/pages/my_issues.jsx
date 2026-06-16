@@ -1,8 +1,10 @@
 
 import {useEffect,useMemo,useState} from 'react'
 import api from '../api/axios'
+import {useQuery} from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import IssueDrawer from '../components/issue_drawer'
+import { optimizeCloudinary } from '../utils/cloudinary'
 
 const STATUS_OPTIONS = [
   {key: 'ALL', label: 'All'},
@@ -44,18 +46,25 @@ const MyIssues = ()=>{
   const [status_filter,set_status_filter]=useState('ALL')
   const [selected_issue,set_selected_issue]=useState(null)
 
-  useEffect(()=>{ fetch_my_issues() },[])
-
-  const fetch_my_issues=async()=>{
-    try{
-      const res=await api.get('/issues/my')
-      set_issues(Array.isArray(res.data?.data) ? res.data.data : [])
-    }catch(err){
-      toast.error('Failed to load your issues')
-    }finally{
-      set_loading(false)
-    }
+  const fetchMyIssues = async ()=>{
+    const res = await api.get('/issues/my')
+    return Array.isArray(res.data?.data) ? res.data.data : []
   }
+
+  const { data: myIssuesData, isLoading: rqLoading, isError } = useQuery(['issues','my'], fetchMyIssues, { staleTime: 60000, retry:1 })
+
+  useEffect(()=>{
+    if(rqLoading) return
+    if(isError){
+      toast.error('Failed to load your issues')
+      set_issues([])
+      set_loading(false)
+      return
+    }
+
+    set_issues(myIssuesData || [])
+    set_loading(false)
+  },[myIssuesData,isError,rqLoading])
 
   const issues_with_area = useMemo(()=>{
     return issues.map(i=>({
@@ -150,7 +159,7 @@ const MyIssues = ()=>{
             <div key={issue.id} className='bg-gray-900 rounded-xl p-4 shadow-md flex flex-col md:flex-row gap-4 md:items-start'>
               <div className='flex-shrink-0 w-full md:w-44 h-36 bg-gray-800 rounded-lg overflow-hidden flex items-center justify-center'>
                 {issue.imageUrl ? (
-                  <img src={issue.imageUrl} alt='thumb' className='w-full h-full object-cover' />
+                  <img src={optimizeCloudinary(issue.imageUrl,{width:440})} alt='thumb' className='w-full h-full object-cover' />
                 ) : (
                   <div className='text-gray-500 text-sm'>No image</div>
                 )}

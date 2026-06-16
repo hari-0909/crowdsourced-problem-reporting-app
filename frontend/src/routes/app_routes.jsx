@@ -1,16 +1,20 @@
 
 import {BrowserRouter,Routes,Route,Navigate} from 'react-router-dom'
+import {lazy,Suspense} from 'react'
 import Home from '../pages/home'
-import Login from '../pages/login'
-import Register from '../pages/register'
-import Dashboard from '../pages/dashboard'
-import ReportIssue from '../pages/report_issue'
-import MyIssues from '../pages/my_issues'
-import AdminDashboard from '../pages/admin_dashboard'
 import NotFound from '../pages/not_found'
 import MainLayout from '../layouts/main_layout'
 import use_auth_store from '../store/auth_store'
-import Explore from '../pages/explore'
+import LoadingFallback from '../components/LoadingFallback'
+
+// Lazy-loaded pages (reduce initial bundle)
+const Login = lazy(()=>import('../pages/login'))
+const Register = lazy(()=>import('../pages/register'))
+const Dashboard = lazy(()=>import('../pages/dashboard'))
+const ReportIssue = lazy(()=>import('../pages/report_issue'))
+const MyIssues = lazy(()=>import('../pages/my_issues'))
+const AdminDashboard = lazy(()=>import('../pages/admin_dashboard'))
+const Explore = lazy(()=>import('../pages/explore'))
 
 const ProtectedRoute=({children})=>{
   const user=use_auth_store((state)=>state.user)
@@ -45,54 +49,56 @@ const AdminRoute=({children})=>{
 const AppRoutes=()=>{
   return(
     <BrowserRouter>
-      <Routes>
-        <Route path='/' element={<MainLayout/>}>
-          <Route index element={<Home/>}/>
-          <Route path='login' element={<Login/>}/>
-          <Route path='register' element={<Register/>}/>
-          <Route
-            path='dashboard'
-            element={
-              <ProtectedRoute>
-                <Dashboard/>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path='report'
-            element={
-              <ProtectedRoute>
-                <ReportIssue/>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path='my-issues'
-            element={
-              <ProtectedRoute>
-                <MyIssues/>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path='explore'
-            element={
-              <ProtectedRoute>
-                <Explore/>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path='admin'
-            element={
-              <AdminRoute>
-                <AdminDashboard/>
-              </AdminRoute>
-            }
-          />
-          <Route path='*' element={<NotFound/>}/>
-        </Route>
-      </Routes>
+      <Suspense fallback={<LoadingFallback/>}>
+        <Routes>
+          <Route path='/' element={<MainLayout/>}>
+            <Route index element={<Home/>}/>
+            <Route path='login' element={<Login/>}/>
+            <Route path='register' element={<Register/>}/>
+            <Route
+              path='dashboard'
+              element={
+                <ProtectedRoute>
+                  <Dashboard/>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='report'
+              element={
+                <ProtectedRoute>
+                  <ReportIssue/>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='my-issues'
+              element={
+                <ProtectedRoute>
+                  <MyIssues/>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='explore'
+              element={
+                <ProtectedRoute>
+                  <Explore/>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='admin'
+              element={
+                <AdminRoute>
+                  <AdminDashboard/>
+                </AdminRoute>
+              }
+            />
+            <Route path='*' element={<NotFound/>}/>
+          </Route>
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   )
 }

@@ -45,12 +45,15 @@ const get_issues_with_filter=async(status)=>{
 }
 
 const get_issue_stats=async()=>{
-  const total=await prisma.issue.count()
-  const reported=await prisma.issue.count({where:{status:'REPORTED'}})
-  const in_progress=await prisma.issue.count({where:{status:'IN_PROGRESS'}})
-  const resolved=await prisma.issue.count({where:{status:'RESOLVED'}})
+  // Run counts in parallel to reduce latency instead of sequential awaits
+  const [total, reported, in_progress, resolved] = await Promise.all([
+    prisma.issue.count(),
+    prisma.issue.count({ where: { status: 'REPORTED' } }),
+    prisma.issue.count({ where: { status: 'IN_PROGRESS' } }),
+    prisma.issue.count({ where: { status: 'RESOLVED' } })
+  ])
 
-  return {total,reported,in_progress,resolved}
+  return { total, reported, in_progress, resolved }
 }
 
 module.exports={create_issue,get_all_issues,get_issues_by_user,get_nearby_issues,get_issues_with_filter,get_issue_stats}

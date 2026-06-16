@@ -14,7 +14,9 @@ const upload=multer({
       return
     }
 
-    cb(new Error('Only JPEG, PNG, and WEBP images are allowed'))
+    const err = new Error('Invalid file type.')
+    err.status = 400
+    cb(err)
   }
 })
 

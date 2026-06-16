@@ -1,16 +1,18 @@
-import {useEffect,useMemo,useState} from 'react'
+import {useEffect,useMemo,useState,useCallback} from 'react'
 import toast from 'react-hot-toast'
 import api from '../api/axios'
+import {useQuery} from '@tanstack/react-query'
 import IssueMap from '../components/issue_map'
 import IssueDrawer from '../components/issue_drawer'
 import ActivityFeed from '../components/activity_feed'
+import { optimizeCloudinary } from '../utils/cloudinary'
 // area and city are provided by backend reverse geocoding (if available)
 
 const Explore=()=>{
   const [issues,set_issues]=useState([])
   const [loading,set_loading]=useState(false)
   const [initial_loading,set_initial_loading]=useState(true)
-  const [error,set_error]=useState('')
+  const [fetchError,set_fetchError]=useState('')
 
   const [radius,set_radius]=useState(5)
   const [center,set_center]=useState(null)
@@ -28,25 +30,29 @@ const Explore=()=>{
     return Array.isArray(data)?data:[]
   }
 
-  const fetch_all_issues=async()=>{
+  const fetchAll = async ()=>{
+    const res = await api.get('/issues')
+    return get_issue_list(res)
+  }
+
+  const { data: issuesData, isLoading, isError, error: queryError, refetch } = useQuery(['issues','all'], fetchAll, { staleTime: 60000, retry: 1 })
+
+  const fetch_all_issues = useCallback(async()=>{
     set_loading(true)
     set_error('')
-
     try{
-      const res=await api.get('/issues')
-      const issue_list=get_issue_list(res)
-
-      set_issues(issue_list)
+      const list = issuesData || await refetch().then(r=>r.data)
+      set_issues(Array.isArray(list)?list:[])
       set_center(null)
     }catch(err){
       set_issues([])
-      set_error(err.response?.data?.message||'Failed to load issues')
-      toast.error('Failed to load issues')
+  set_fetchError(err?.response?.data?.message||'Failed to load issues')
+  toast.error('Failed to load issues')
     }finally{
       set_loading(false)
       set_initial_loading(false)
     }
-  }
+  },[issuesData,refetch])
 
   const fetch_nearby_issues=()=>{
     if(!navigator.geolocation){
@@ -352,7 +358,7 @@ const Explore=()=>{
                   >
                     <div className='flex-shrink-0'>
                       {issue.imageUrl ? (
-                        <img src={issue.imageUrl} alt='thumb' className='h-16 w-24 rounded-md object-cover' />
+                        <img src={optimizeCloudinary(issue.imageUrl,{width:240})} alt='thumb' className='h-16 w-24 rounded-md object-cover' />
                       ) : (
                         <div className='h-16 w-24 rounded-md bg-gray-100 flex items-center justify-center text-sm text-gray-500'>No image</div>
                       )}

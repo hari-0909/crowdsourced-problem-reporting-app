@@ -3,6 +3,7 @@ const router=express.Router()
 
 const {verify_token,allow_roles}=require('../middlewares/auth.middleware')
 const upload=require('../middlewares/upload.middleware')
+const {issueCreationLimiter}=require('../middlewares/rateLimit.middleware')
 
 const {
   create_issue_controller,
@@ -13,7 +14,7 @@ const {
   get_filtered_issues_controller
 }=require('../controllers/issue.controller')
 
-router.post('/',verify_token,upload.single('image'),create_issue_controller)
+router.post('/',verify_token,issueCreationLimiter,upload.single('image'),create_issue_controller)
 router.get('/',get_all_issues_controller)
 router.get('/my',verify_token,get_my_issues_controller)
 router.get('/nearby',get_nearby_issues_controller)

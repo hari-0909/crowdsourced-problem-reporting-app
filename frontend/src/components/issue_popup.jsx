@@ -1,3 +1,5 @@
+import { optimizeCloudinary } from '../utils/cloudinary'
+
 const IssuePopup = ({issue}) => {
   return (
     <div className='min-w-[220px] bg-white p-3 rounded'>
@@ -17,7 +19,7 @@ const IssuePopup = ({issue}) => {
 
       {issue.imageUrl && (
         <img
-          src={issue.imageUrl}
+          src={optimizeCloudinary(issue.imageUrl,{width:600})}
           alt='Issue'
           className='mt-3 h-32 w-full rounded-lg object-cover'
         />

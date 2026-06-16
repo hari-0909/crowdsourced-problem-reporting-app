@@ -5,27 +5,33 @@ import api from '../api/axios'
 import toast from 'react-hot-toast'
 import ActivityFeed from '../components/activity_feed'
 import AnalyticsCharts from '../components/analytics_charts'
+import { useQuery } from '@tanstack/react-query'
 
 const Dashboard=()=>{
   const [issues,set_issues]=useState([])
   const [my_issues_count,set_my_issues_count]=useState(0)
   const [loading,set_loading]=useState(true)
 
-  useEffect(()=>{ fetch_dashboard_data() },[])
-
-  const fetch_dashboard_data=async()=>{
-    try{
-      const my_issues_res=await api.get('/issues/my')
-      const issue_list=Array.isArray(my_issues_res.data?.data) ? my_issues_res.data.data : []
-
-      set_issues(issue_list)
-      set_my_issues_count(issue_list.length)
-    }catch(err){
-      toast.error('Failed to load dashboard')
-    }finally{
-      set_loading(false)
-    }
+  const fetchMyIssues = async ()=>{
+    const res = await api.get('/issues/my')
+    return Array.isArray(res.data?.data) ? res.data.data : []
   }
+
+  const { data: myIssuesData, isLoading: rqLoading, isError } = useQuery(['issues','my'], fetchMyIssues, { staleTime: 60000, retry: 1 })
+
+  useEffect(()=>{
+    if(rqLoading) return
+    if(isError){
+      toast.error('Failed to load dashboard')
+      set_loading(false)
+      return
+    }
+
+    const issue_list = myIssuesData || []
+    set_issues(issue_list)
+    set_my_issues_count(issue_list.length)
+    set_loading(false)
+  },[myIssuesData,rqLoading,isError])
 
   const issues_with_area = useMemo(()=>{
     return issues.map(i=>({

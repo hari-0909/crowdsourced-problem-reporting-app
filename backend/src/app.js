@@ -1,22 +1,21 @@
 const express=require('express')
 const cors=require('cors')
 const multer=require('multer')
+const helmet=require('helmet')
 const user_routes=require('./routes/user.routes')
 const auth_routes=require('./routes/auth.routes')
 const issue_routes=require('./routes/issue.routes')
 const admin_routes=require('./routes/admin.routes')
 
 const app=express()
+app.use(helmet())
 
 app.use(cors({
   origin:'http://localhost:5173',
   credentials:true
 }))
+
 app.use(express.json())
-app.use((req,res,next)=>{
-  console.log("REQUEST HIT:",req.method,req.url)
-  next()
-})
 
 app.get('/health',(req,res)=>{
   res.status(200).json({message:'server is running'})
