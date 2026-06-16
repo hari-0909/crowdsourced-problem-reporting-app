@@ -17,7 +17,7 @@ const Dashboard=()=>{
     return Array.isArray(res.data?.data) ? res.data.data : []
   }
 
-  const { data: myIssuesData, isLoading: rqLoading, isError } = useQuery(['issues','my'], fetchMyIssues, { staleTime: 60000, retry: 1 })
+  const { data: myIssuesData, isLoading: rqLoading, isError } = useQuery({ queryKey: ['issues','my'], queryFn: fetchMyIssues, staleTime: 60000, retry: 1 })
 
   useEffect(()=>{
     if(rqLoading) return

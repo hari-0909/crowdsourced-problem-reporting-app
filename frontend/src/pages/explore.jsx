@@ -35,19 +35,19 @@ const Explore=()=>{
     return get_issue_list(res)
   }
 
-  const { data: issuesData, isLoading, isError, error: queryError, refetch } = useQuery(['issues','all'], fetchAll, { staleTime: 60000, retry: 1 })
+  const { data: issuesData, isLoading, isError, error, refetch } = useQuery({ queryKey: ['issues','all'], queryFn: fetchAll, staleTime: 60000, retry: 1 })
 
   const fetch_all_issues = useCallback(async()=>{
-    set_loading(true)
-    set_error('')
+  set_loading(true)
+  set_fetchError('')
     try{
       const list = issuesData || await refetch().then(r=>r.data)
       set_issues(Array.isArray(list)?list:[])
       set_center(null)
     }catch(err){
       set_issues([])
-  set_fetchError(err?.response?.data?.message||'Failed to load issues')
-  toast.error('Failed to load issues')
+      set_fetchError(err?.response?.data?.message||'Failed to load issues')
+      toast.error('Failed to load issues')
     }finally{
       set_loading(false)
       set_initial_loading(false)
@@ -60,8 +60,8 @@ const Explore=()=>{
       return
     }
 
-    set_loading(true)
-    set_error('')
+  set_loading(true)
+  set_fetchError('')
 
     navigator.geolocation.getCurrentPosition(
       async(position)=>{
@@ -81,7 +81,7 @@ const Explore=()=>{
           set_view_mode('map')
         }catch(err){
           set_issues([])
-          set_error(err.response?.data?.message||'Failed to fetch nearby issues')
+          set_fetchError(err.response?.data?.message||'Failed to fetch nearby issues')
           toast.error('Failed to fetch nearby issues')
         }finally{
           set_loading(false)
@@ -89,7 +89,7 @@ const Explore=()=>{
       },
       ()=>{
         set_loading(false)
-        set_error('Failed to get location')
+        set_fetchError('Failed to get location')
         toast.error('Failed to get location')
       }
     )
@@ -107,11 +107,11 @@ const Explore=()=>{
 
         set_issues(issue_list)
         set_center(null)
-      }catch(err){
+        }catch(err){
         if(!active) return
 
         set_issues([])
-        set_error(err.response?.data?.message||'Failed to load issues')
+        set_fetchError(err.response?.data?.message||'Failed to load issues')
         toast.error('Failed to load issues')
       }finally{
         if(active) set_initial_loading(false)
@@ -334,9 +334,9 @@ const Explore=()=>{
         ))}
       </div>
 
-      {error&&(
+      {(isError || fetchError) && (
         <div className='rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-red-200'>
-          {error}
+          {error?.message || fetchError || 'Failed to load issues'}
         </div>
       )}
 
@@ -394,7 +394,7 @@ const Explore=()=>{
           )}
 
           {/* Inline message when there are no visible results */}
-          {!loading && !error && issues.length===0 && (
+          {!loading && !isError && !fetchError && issues.length===0 && (
             <div className='rounded-lg border border-gray-700 bg-gray-900 px-4 py-6 text-gray-300'>No issues reported yet.</div>
           )}
         </div>

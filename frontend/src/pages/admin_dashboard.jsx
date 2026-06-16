@@ -49,8 +49,8 @@ const AdminDashboard=()=>{
     return res.data.data
   }
 
-  const { data: statsData, isLoading: statsLoading, isError: statsError } = useQuery(['admin','stats'], fetchStats, { staleTime: 60000, retry:1 })
-  const { data: issuesData, isLoading: issuesLoading, isError: issuesError } = useQuery(['issues','all'], fetchIssues, { staleTime: 60000, retry:1 })
+  const { data: statsData, isLoading: statsLoading, isError: statsError } = useQuery({ queryKey: ['admin','stats'], queryFn: fetchStats, staleTime: 60000, retry:1 })
+  const { data: issuesData, isLoading: issuesLoading, isError: issuesError } = useQuery({ queryKey: ['issues','all'], queryFn: fetchIssues, staleTime: 60000, retry:1 })
 
   useEffect(()=>{
     // populate local state when queries resolve
