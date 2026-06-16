@@ -12,9 +12,33 @@ const createIssue=async(user_id,data,file)=>{
     image_url=await upload_to_cloudinary(file)
   }
 
+  // Attempt reverse geocoding using OpenStreetMap Nominatim to derive area/city/state.
+  // This must not block issue creation if the external service fails.
+  const { latitude, longitude } = validated
+  let area = null, city = null, state = null
+
+  try{
+    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}`
+    const res = await fetch(url, { headers: { 'User-Agent': 'CivicTrack/1.0 (+https://example.com)' } })
+    if(res && res.ok){
+      const json = await res.json()
+      // Parse address fields conservatively
+      const address = json.address || {}
+      area = address.suburb || address.neighbourhood || address.village || address.hamlet || address.town || null
+      city = address.city || address.town || address.village || address.county || null
+      state = address.state || address.region || null
+    }
+  }catch(e){
+    // Do not fail creation if reverse geocode fails. Log and continue.
+    console.error('Reverse geocode failed', e.message || e)
+  }
+
   return await create_issue({
     ...validated,
     imageUrl:image_url,
+    area,
+    city,
+    state,
     createdBy:user_id
   })
 }

@@ -19,7 +19,14 @@ const ActivityFeed = ({activities}) => {
               <div className='flex items-center justify-between'>
                 <div>
                   <div className='font-semibold' style={{color:'var(--text-primary)'}}>{a.title}</div>
-                  <div className='text-sm muted'>{a.user?.email || 'Unknown'}</div>
+                  {(() => {
+                    const locationText = [a.area, a.city].filter(Boolean).join(', ') || 'Location unavailable'
+                    return (
+                      <div className='text-sm muted'>
+                        {locationText}
+                      </div>
+                    )
+                  })()}
                 </div>
 
                 <div className='text-sm muted text-right'>

@@ -24,6 +24,9 @@ model Issue{
   type        String
   latitude    Float
   longitude   Float
+  area        String?
+  city        String?
+  state       String?
   status      Status   @default(REPORTED)
   createdBy   String
   createdAt   DateTime @default(now())
