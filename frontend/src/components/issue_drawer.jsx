@@ -1,3 +1,4 @@
+import { optimizeCloudinary } from '../utils/cloudinary'
 const IssueDrawer=({ issue, on_close, format_date })=>{
   if(!issue) return null
 

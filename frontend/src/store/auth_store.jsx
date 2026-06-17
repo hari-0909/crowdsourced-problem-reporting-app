@@ -50,6 +50,30 @@ const use_auth_store=create((set,get)=>({
     }
   },
 
+  googleSignIn:async(idToken)=>{
+    set({loading:true})
+
+    try{
+      const res=await api.post('/auth/google',{id_token:idToken})
+
+      localStorage.setItem('access_token',res.data.data.access_token)
+      localStorage.setItem('refresh_token',res.data.data.refresh_token)
+
+      await get().fetch_me()
+
+      set({loading:false})
+
+      return {success:true}
+    }catch(err){
+      set({loading:false})
+
+      return {
+        success:false,
+        message:err.response?.data?.message||'Google sign in failed'
+      }
+    }
+  },
+
   fetch_me:async()=>{
     try{
       const res=await api.get('/user/me')

@@ -1,4 +1,5 @@
 const {register,login,refresh,logout}=require('../services/auth.service')
+const {google_login}=require('../services/auth.service')
 const {validateRegister,validateLogin}=require('../validations/auth.validation')
 
 const register_controller=async(req,res)=>{
@@ -47,4 +48,15 @@ const logout_controller=async(req,res)=>{
   }
 }
 
-module.exports={register_controller,login_controller,refresh_controller,logout_controller}
+const google_controller=async(req,res)=>{
+  try{
+    const {id_token}=req.body
+    const data=await google_login(id_token)
+    res.status(200).json({success:true,data})
+  }catch(err){
+    console.error('google login error:', err.message)
+    res.status(401).json({success:false,message:err.message})
+  }
+}
+
+module.exports={register_controller,login_controller,refresh_controller,logout_controller,google_controller}

@@ -15,24 +15,68 @@ const STATUS_OPTIONS = [
 
 const format_status = (s) => s ? s.replace('_',' ') : 'Unknown'
 
-const StatusTimeline = ({status}) => {
+const StatusTimeline = ({ status }) => {
   const steps = [
-    {key: 'REPORTED', label: 'Reported'},
-    {key: 'IN_PROGRESS', label: 'In Progress'},
-    {key: 'RESOLVED', label: 'Resolved'}
+    {
+      key: 'REPORTED',
+      label: 'Reported',
+      active: 'bg-yellow-400 text-white',
+      line: 'bg-yellow-500'
+    },
+    {
+      key: 'IN_PROGRESS',
+      label: 'In Progress',
+      active: 'bg-blue-300 text-white',
+      line: 'bg-blue-600'
+    },
+    {
+      key: 'RESOLVED',
+      label: 'Resolved',
+      active: 'bg-green-500 text-white',
+      line: 'bg-green-600'
+    }
   ]
 
-  const currentIndex = steps.findIndex(st => st.key === status)
+  const currentIndex = steps.findIndex(
+    step => step.key === status
+  )
 
   return (
     <div className='flex items-center gap-3'>
-      {steps.map((step,idx)=> (
-        <div key={step.key} className='flex items-center gap-3'>
-          <div className={`flex items-center justify-center h-7 w-7 rounded-full text-xs font-semibold ${idx<=currentIndex ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400'}`}>
-            {idx+1}
+      {steps.map((step, idx) => (
+        <div
+          key={step.key}
+          className='flex items-center gap-3'
+        >
+          <div
+            className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold ${
+              idx <= currentIndex
+                ? step.active
+                : 'bg-gray-200 text-gray-500'
+            }`}
+          >
+            {idx + 1}
           </div>
-          <div className={`text-xs ${idx<=currentIndex ? 'text-white' : 'text-gray-400'}`}>{step.label}</div>
-          {idx<steps.length-1 && <div className={`h-px w-6 ${idx<currentIndex ? 'bg-blue-600' : 'bg-gray-700'}`} />}
+
+          <div
+            className={`text-xs ${
+              idx <= currentIndex
+                ? 'text-gray-700 font-medium'
+                : 'text-gray-400'
+            }`}
+          >
+            {step.label}
+          </div>
+
+          {idx < steps.length - 1 && (
+            <div
+              className={`h-[2px] w-6 ${
+                idx < currentIndex
+                  ? steps[idx + 1].line
+                  : 'bg-gray-300'
+              }`}
+            />
+          )}
         </div>
       ))}
     </div>
@@ -156,12 +200,12 @@ const MyIssues = ()=>{
       ) : (
         <div className='space-y-4'>
           {filtered.map(issue=> (
-            <div key={issue.id} className='bg-gray-900 rounded-xl p-4 shadow-md flex flex-col md:flex-row gap-4 md:items-start'>
-              <div className='flex-shrink-0 w-full md:w-44 h-36 bg-gray-800 rounded-lg overflow-hidden flex items-center justify-center'>
+            <div key={issue.id} className='bg-white rounded-xl p-4 shadow-lg border border-gray-200 flex flex-col md:flex-row gap-4 md:items-start'>
+              <div className='flex-shrink-0 w-full md:w-44 h-36 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center border border-gray-200'>
                 {issue.imageUrl ? (
                   <img src={optimizeCloudinary(issue.imageUrl,{width:440})} alt='thumb' className='w-full h-full object-cover' />
                 ) : (
-                  <div className='text-gray-500 text-sm'>No image</div>
+                  <div className='text-gray-400 text-sm'>No image</div>
                 )}
               </div>
 
@@ -169,9 +213,9 @@ const MyIssues = ()=>{
                 <div className='flex items-start justify-between gap-4'>
                   <div className='min-w-0'>
                     <h3 className='text-lg font-semibold truncate cursor-pointer' onClick={()=>set_selected_issue(issue)}>{issue.title}</h3>
-                    <p className='mt-1 text-sm text-gray-300 line-clamp-2'>{issue.description}</p>
+                    <p className='mt-1 text-sm text-gray-600 line-clamp-2'>{issue.description}</p>
 
-                    <div className='mt-3 flex flex-wrap items-center gap-3 text-sm text-gray-400'>
+                    <div className='mt-3 flex flex-wrap items-center gap-3 text-sm text-gray-500'>
                       <div className='flex items-center gap-2'><span>📍</span><span className='truncate'>{issue.area && issue.city ? `${issue.area}, ${issue.city}${issue.state?`, ${issue.state}`:''}` : (issue.latitude && issue.longitude ? `${Number(issue.latitude).toFixed(3)}, ${Number(issue.longitude).toFixed(3)}` : 'Unknown location')}</span></div>
                       <div className='flex items-center gap-2'><span>🕒</span><span>{format_date(issue.createdAt)}</span></div>
                       <div className='flex items-center gap-2'><span>🏷</span><span>{issue.type||'—'}</span></div>
@@ -179,7 +223,13 @@ const MyIssues = ()=>{
                   </div>
 
                     <div className='flex-shrink-0 flex flex-col items-end gap-3'>
-                      <div className='text-sm px-3 py-1 rounded-full bg-gray-800 text-gray-300'>{format_status(issue.status)}</div>
+                      <div className={`text-sm px-3 py-1 rounded-full font-medium
+                        ${issue.status === 'REPORTED'
+                          ? 'bg-yellow-100 text-yellow-700'
+                          : issue.status === 'IN_PROGRESS'
+                          ? 'bg-blue-100 text-blue-700'
+                          : 'bg-green-100 text-green-700'
+                        }`}>{format_status(issue.status)}</div>
                       <div className='hidden md:block'>
                         <StatusTimeline status={issue.status} />
                       </div>

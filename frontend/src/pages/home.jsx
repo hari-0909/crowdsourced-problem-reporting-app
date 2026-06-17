@@ -22,7 +22,7 @@ const Home=()=>{
 
         <Link
           to='/register'
-          className='rounded-xl border border-gray-700 px-8 py-4 text-lg font-semibold transition hover:bg-gray-800'
+          className='rounded-xl border border-gray-700 px-8 py-4 text-lg font-semibold transition hover:bg-gray-200 hover:text-gray-900'
         >
           Join Platform
         </Link>
